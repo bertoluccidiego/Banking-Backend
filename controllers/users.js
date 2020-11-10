@@ -1,4 +1,6 @@
 const usersRouter = require('express').Router();
+
+const utils = require('../utils');
 const User = require('../models/users');
 
 usersRouter.get('/', async (req, res, next) => {
@@ -15,7 +17,7 @@ usersRouter.post('/', async (req, res, next) => {
 
   const userObj = new User({
     username: userData.username,
-    password: userData.password,
+    password: await utils.passwordEncrypter(userData.password),
   });
 
   try {
@@ -30,8 +32,10 @@ usersRouter.put('/:id', async (req, res, next) => {
   const userId = req.params.id;
   const userData = req.body;
 
-  console.log(`user id ${userId}`);
-  console.log(`user data ${userData}`);
+  // If the password is changed, encrypt it before saving it
+  if (userData.password) {
+    userData.password = await utils.passwordEncrypter(userData.password);
+  }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, userData, {
