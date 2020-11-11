@@ -4,6 +4,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const usersRouter = require('./controllers/users');
+const loginRouter = require('./controllers/login');
 const middleware = require('./middleware.js');
 
 const app = express();
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>');
 });
 
+app.use('/login', loginRouter);
 app.use('/users', usersRouter);
 
 app.use(middleware.unknownEndpoint);
