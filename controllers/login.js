@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const loginRouter = require('express').Router();
 
 const User = require('../models/users');
+const config = require('../utils/config');
 
 // eslint-disable-next-line
 loginRouter.post('/', async (req, res, next) => {
@@ -13,8 +14,7 @@ loginRouter.post('/', async (req, res, next) => {
       username: userCredentials.username,
     });
     if (!userObj) {
-      // Implement error throwing here
-      return res.status(404).json({ message: 'Error, username not found' });
+      throw new Error('Username not found');
     }
 
     const passwordMatch = await bcrypt.compare(
@@ -22,11 +22,10 @@ loginRouter.post('/', async (req, res, next) => {
       userObj.password
     );
     if (!passwordMatch) {
-      //  Implement error throwing here
-      return res.status(401).json({ message: "Error, passwords don't match" });
+      throw new Error("Passwords don't match");
     }
 
-    const token = await jwt.sign(userCredentials, 'discourse');
+    const token = await jwt.sign(userCredentials, config.JWT_SECRET);
 
     res.json({ username: userCredentials.username, token });
   } catch (err) {

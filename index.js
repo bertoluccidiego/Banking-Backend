@@ -1,19 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
-require('dotenv').config();
 
 const usersRouter = require('./controllers/users');
 const loginRouter = require('./controllers/login');
-const middleware = require('./middleware.js');
+const middleware = require('./utils/middleware.js');
+const config = require('./utils/config');
 
 const app = express();
 
-const port = process.env.PORT || 5000;
-const uri = process.env.DB_URI;
-
 mongoose
-  .connect(uri, {
+  .connect(config.DB_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useCreateIndex: true,
@@ -39,6 +36,6 @@ app.use('/users', usersRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(config.PORT, () => {
+  console.log(`Server running on http://localhost:${config.PORT}`);
 });
