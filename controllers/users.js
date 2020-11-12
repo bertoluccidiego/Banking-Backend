@@ -5,7 +5,15 @@ const User = require('../models/user');
 
 usersRouter.get('/', async (req, res, next) => {
   try {
-    const usersList = await User.find({}).populate('accounts');
+    const usersList = await User.find({}).populate({
+      path: 'accounts',
+      model: 'Account',
+      populate: {
+        path: 'movements',
+        model: 'Movement',
+      },
+    });
+
     res.json(usersList);
   } catch (err) {
     next(err);

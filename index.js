@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const usersRouter = require('./controllers/users');
 const loginRouter = require('./controllers/login');
 const accountsRouter = require('./controllers/accounts');
+const movementsRouter = require('./controllers/movements');
 const middleware = require('./utils/middleware.js');
 const config = require('./utils/config');
 
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 app.use('/login', loginRouter);
 app.use('/users', usersRouter);
 app.use('/accounts', accountsRouter);
+app.use('/movements', movementsRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

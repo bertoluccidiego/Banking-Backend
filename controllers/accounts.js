@@ -22,8 +22,10 @@ accountsRouter.post('/', async (req, res, next) => {
 
     const newAccountObj = new Account({
       owner: userObj._id,
-      date: Date.now(),
+      creationDate: new Date(),
     });
+
+    console.log(newAccountObj);
 
     const newAccount = await newAccountObj.save();
     userObj.accounts = userObj.accounts.concat(newAccount._id);
