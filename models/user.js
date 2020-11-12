@@ -13,6 +13,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  accounts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Account',
+    },
+  ],
 });
 
 userSchema.plugin(uniqueValidator);

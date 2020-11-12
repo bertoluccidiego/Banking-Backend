@@ -2,10 +2,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const loginRouter = require('express').Router();
 
-const User = require('../models/users');
+const User = require('../models/user');
 const config = require('../utils/config');
 
-// eslint-disable-next-line
 loginRouter.post('/', async (req, res, next) => {
   const userCredentials = req.body;
 

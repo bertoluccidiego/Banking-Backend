@@ -9,7 +9,19 @@ function unknownEndpoint(req, res) {
   res.status(404).json({ message: 'Unknown path' });
 }
 
+function getToken(req, res, next) {
+  const authorizationHeader = req.get('Authorization');
+  if (authorizationHeader) {
+    if (authorizationHeader.slice(0, 7) === 'Bearer ') {
+      req.token = authorizationHeader.slice(7);
+    }
+  }
+
+  next();
+}
+
 module.exports = {
   errorHandler,
   unknownEndpoint,
+  getToken,
 };
