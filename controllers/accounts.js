@@ -5,6 +5,26 @@ const Account = require('../models/account');
 const User = require('../models/user');
 const config = require('../utils/config');
 
+accountsRouter.get('/', async (req, res, next) => {
+  try {
+    const accountsList = await Account.find({}).populate('movements');
+    res.json(accountsList);
+  } catch (err) {
+    next(err);
+  }
+});
+
+accountsRouter.get('/:id', async (req, res, next) => {
+  const accountId = req.params.id;
+
+  try {
+    const account = await Account.findById(accountId).populate('movements');
+    res.json(account);
+  } catch (err) {
+    next(err);
+  }
+});
+
 accountsRouter.post('/', async (req, res, next) => {
   const userToken = req.token;
   if (!userToken) {

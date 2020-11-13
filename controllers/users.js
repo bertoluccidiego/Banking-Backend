@@ -2,6 +2,26 @@ const usersRouter = require('express').Router();
 
 const utils = require('../utils/utils');
 const User = require('../models/user');
+const Account = require('../models/account');
+
+usersRouter.get('/:id', async (req, res, next) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findById(userId).populate({
+      path: 'accounts',
+      model: 'Account',
+      populate: {
+        path: 'movements',
+        model: 'Movement',
+      },
+    });
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
 
 usersRouter.get('/', async (req, res, next) => {
   try {
@@ -59,6 +79,8 @@ usersRouter.delete('/:id', async (req, res, next) => {
   const userId = req.params.id;
 
   try {
+    await Account.deleteMany({ owner: userId });
+
     await User.findByIdAndDelete(userId);
     res.end();
   } catch (err) {

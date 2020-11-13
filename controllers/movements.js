@@ -6,6 +6,26 @@ const Account = require('../models/account');
 const User = require('../models/user');
 const config = require('../utils/config');
 
+movementsRouter.get('/', async (req, res, next) => {
+  try {
+    const movementsList = await Movement.find({});
+    res.json(movementsList);
+  } catch (err) {
+    next(err);
+  }
+});
+
+movementsRouter.get('/:id', async (req, res, next) => {
+  const movementId = req.params.id;
+
+  try {
+    const movement = await Movement.findById(movementId);
+    res.json(movement);
+  } catch (err) {
+    next(err);
+  }
+});
+
 movementsRouter.post('/', async (req, res, next) => {
   const userToken = req.token;
   if (!userToken) {
