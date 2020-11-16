@@ -74,6 +74,11 @@ accountsRouter.delete('/:id', async (req, res, next) => {
       throw new Error('Username not found');
     }
 
+    const accountObj = await Account.findById(accountId);
+    if (accountObj.owner.toString() !== userObj._id.toString()) {
+      throw new Error("The logged in user and the account owner don't match");
+    }
+
     await Account.findByIdAndDelete(accountId);
 
     userObj.accounts = userObj.accounts.filter((a) => a._id !== accountId);

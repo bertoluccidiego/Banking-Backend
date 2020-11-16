@@ -1,14 +1,22 @@
 const usersRouter = require('express').Router();
+const jwt = require('jsonwebtoken');
 
-const utils = require('../utils/utils');
 const User = require('../models/user');
 const Account = require('../models/account');
+const utils = require('../utils/utils');
+const config = require('../utils/config');
 
-usersRouter.get('/:id', async (req, res, next) => {
-  const userId = req.params.id;
+usersRouter.get('/', async (req, res, next) => {
+  const userToken = req.token;
+  if (!userToken) {
+    throw new Error('Authorization token not provided');
+  }
 
   try {
-    const user = await User.findById(userId).populate({
+    const userCredentials = await jwt.verify(userToken, config.JWT_SECRET);
+    const user = await User.findOne({
+      username: userCredentials.username,
+    }).populate({
       path: 'accounts',
       model: 'Account',
       populate: {
@@ -23,7 +31,7 @@ usersRouter.get('/:id', async (req, res, next) => {
   }
 });
 
-usersRouter.get('/', async (req, res, next) => {
+usersRouter.get('/all', async (req, res, next) => {
   try {
     const usersList = await User.find({}).populate({
       path: 'accounts',
@@ -75,13 +83,18 @@ usersRouter.put('/:id', async (req, res, next) => {
   }
 });
 
-usersRouter.delete('/:id', async (req, res, next) => {
-  const userId = req.params.id;
+usersRouter.delete('/', async (req, res, next) => {
+  const userToken = req.token;
+  if (!userToken) {
+    throw new Error('Authorization token not provided');
+  }
 
   try {
-    await Account.deleteMany({ owner: userId });
+    const userCredentials = await jwt.verify(userToken, config.JWT_SECRET);
+    const userObj = await User.findOne({ username: userCredentials.username });
+    await Account.deleteMany({ owner: userObj._id });
 
-    await User.findByIdAndDelete(userId);
+    await User.findByIdAndDelete(userObj._id);
     res.end();
   } catch (err) {
     next(err);
