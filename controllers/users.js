@@ -7,42 +7,20 @@ const utils = require('../utils/utils');
 const config = require('../utils/config');
 
 usersRouter.get('/', async (req, res, next) => {
-  const userToken = req.token;
-  if (!userToken) {
-    throw new Error('Authorization token not provided');
-  }
-
   try {
-    const userCredentials = await jwt.verify(userToken, config.JWT_SECRET);
-    const user = await User.findOne({
-      username: userCredentials.username,
-    }).populate({
-      path: 'accounts',
-      model: 'Account',
-      populate: {
-        path: 'movements',
-        model: 'Movement',
-      },
-    });
-
-    res.json(user);
+    const usersList = await User.find({});
+    res.json(usersList);
   } catch (err) {
     next(err);
   }
 });
 
-usersRouter.get('/all', async (req, res, next) => {
-  try {
-    const usersList = await User.find({}).populate({
-      path: 'accounts',
-      model: 'Account',
-      populate: {
-        path: 'movements',
-        model: 'Movement',
-      },
-    });
+usersRouter.get('/:id', async (req, res, next) => {
+  const userId = req.params.id;
 
-    res.json(usersList);
+  try {
+    const user = await User.findById(userId);
+    res.json(user);
   } catch (err) {
     next(err);
   }
@@ -58,7 +36,7 @@ usersRouter.post('/', async (req, res, next) => {
 
   try {
     const addedUser = await userObj.save();
-    res.status(201).json(addedUser);
+    res.status(201).set('Location', `/users/${addedUser._id}`).json(addedUser);
   } catch (err) {
     next(err);
   }
@@ -83,19 +61,12 @@ usersRouter.put('/:id', async (req, res, next) => {
   }
 });
 
-usersRouter.delete('/', async (req, res, next) => {
-  const userToken = req.token;
-  if (!userToken) {
-    throw new Error('Authorization token not provided');
-  }
+usersRouter.delete('/:id', async (req, res, next) => {
+  const userId = req.params.id;
 
   try {
-    const userCredentials = await jwt.verify(userToken, config.JWT_SECRET);
-    const userObj = await User.findOne({ username: userCredentials.username });
-    await Account.deleteMany({ owner: userObj._id });
-
-    await User.findByIdAndDelete(userObj._id);
-    res.end();
+    await User.findByIdAndDelete(userId);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
